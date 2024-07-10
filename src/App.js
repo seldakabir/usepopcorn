@@ -54,12 +54,12 @@ export default function App() {
   return <div>
     <Nav> 
       <Logo />
-      <Search />
-     <Result/>  
+      <Search data={movies } />
+      <Result data={movies } />  
     </Nav>
     <Main >
-      <Box data={movies}></Box>
-      <Box data={watched}></Box>
+      <Box data={movies}><MovieList data={movies } /></Box>
+      <Box data={watched}> <Summery data={watched}/> <Watched data={watched} /></Box>
     </Main>
   </div>
 }
@@ -73,28 +73,35 @@ function Logo() {
    <span>UsePopcorn</span> 
   </div>
 }
-function Search() {
+function Search({ data }) {
+  const [query,setQuery]=useState('')
+
   return <div>
-    <input type="text" placeholder="search a movie"className="search"/>
+    <input type="text" placeholder="search a movie" className="search" value={query} onChange={e=>setQuery(e.target.value)} />
   </div>
 }
 
-function Result() {
-  return <p className="num-results">Found X results</p>
+function Result({data}) {
+  return <p className="num-results">Found {data.length} results</p>
 }
 
 function Main({children}) {
   return <div className="main">{ children}</div>
 }
 
-function Box({data}) {
+function Box({data,children}) {
   const [isOpen, setIsOpen] = useState(true)
   function handleOpen() {
     setIsOpen(open=>!open)
   }
   return <div className="box">
-    <button className="btn-toggle" onClick={handleOpen}> {isOpen? '-':'+'} </button>
-  {isOpen && <ul className="list">
+    <button className="btn-toggle" onClick={handleOpen}> {isOpen ? '-' : '+'} </button>
+        
+  {isOpen && children}
+    </div>
+}
+function MovieList({data}) {
+  return <ul className="list">
     {data.map(movie =>(
       <li>
         <img src={movie.Poster} alt={movie.Poster}></img>
@@ -105,6 +112,63 @@ function Box({data}) {
         </div>
       </li>
    ))}
-    </ul>}
-    </div>
+    </ul>
+}
+const average=(arr)=> 
+ arr.reduce((acc,cur,i,arr)=>acc+cur/arr.length,0)
+
+
+  
+
+function Summery({ data }) {
+    const avgImdbRating = average(data.map(movie => movie.imdbRating))
+  const avgUserRating = average(data.map(movie => movie.userRating))
+  const avgRuntime = average(data.map((movie) => movie.runtime));
+  return <div className="summary">
+      <h2>Movies you watched</h2>
+      <div>
+        <p>
+            <span>#️⃣ { data.length}</span>
+          <span> movies</span>
+        </p>
+        <p>
+          <span>⭐️</span>
+            <span>{avgImdbRating}</span>
+        </p>
+        <p>
+          <span>🌟</span>
+            <span>{ avgUserRating}</span>
+        </p>
+        <p>
+          <span>⏳</span>
+          <span>{avgRuntime} min</span>
+        </p>
+      </div>
+      
+      </div>
+}
+function Watched({ data }) {
+  
+  return <ul className="list">
+       {data.map(movie =>(
+      <li>
+        <img src={movie.Poster} alt={movie.Poster}></img>
+        <h3>{movie.Title}</h3>
+        <div>
+          <p>
+                        <span>⭐️</span>
+                        <span>{movie.imdbRating}</span>
+                      </p>
+                      <p>
+                        <span>🌟</span>
+                        <span>{movie.userRating}</span>
+                      </p>
+                      <p>
+                        <span>⏳</span>
+                        <span>{movie.runtime} min</span>
+                      </p>
+        </div>
+      </li>
+   ))} 
+      </ul>
 }
