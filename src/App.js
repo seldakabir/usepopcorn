@@ -66,10 +66,8 @@ export default function App() {
           throw new Error('there is a problem in connection')
 
         const data = await res.json()
-        if (!data.response) {
-          console.log(data.Search);
-        }
-          // throw new Error('Movie is not Found')
+        if (data.response===false) 
+           throw new Error('Movie is not Found')
           
         setMovies(data.Search)
         console.log(data.Search);
