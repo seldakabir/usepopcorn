@@ -52,18 +52,19 @@ export default function App() {
   const [movies, setMovies] = useState([])
   const [watched, setWached] = useState(tempWatchedData)
   const [isLoading, setIsLoading] = useState(false)
-  const [errorMessage,setErrorMessage]=useState('')
+  const [errorMessage, setErrorMessage] = useState('')
+  const tempQuery='TTTT'
   useEffect( function () {
     async function fetchMovies() {
       try {
         setIsLoading(true)
         setErrorMessage('')
          const res = await fetch(
-           `http://www.omdbapi.com/?apikey=${key}&s=Titanic`)
+           `http://www.omdbapi.com/?apikey=${key}&s=${tempQuery}`)
      if(!res.ok) throw new Error('there is a problem in connection')
 
         const data = await res.json()
-        
+        if(!data.response) throw new Error('Movie is not Found')
         setMovies(data.Search)
        
       }
@@ -97,7 +98,7 @@ export default function App() {
   </div>
 }
 function Message({message}) {
-  return <div>
+  return <div className="error">
     <span>⛔️</span>{message}
   </div>
 }
