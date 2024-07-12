@@ -25,23 +25,24 @@ const star = {
 
 export default function Stars({ maxLength = 5 }) {
     const [rating, setRating] = useState(0);
-
+const [tempRating,setTempRating]=useState(0)
     return <div style={containerStyle}>
         <div style={starContainerStyle}>
             {Array.from({ length: maxLength }, (_, i) => <Star
-               full={rating >= i+1}
+               full={tempRating ? tempRating>=i+1 : rating >= i+1}
                 
                 onClick={() => setRating(i + 1)} 
-                onMouseOver={}
+                onMouseEnter={ ()=>setTempRating(i+1)}
+                onMouseLeave={()=>setTempRating(0)}
                
                 />)}
         </div>
-        <p style={textStyle}>{rating || '' } </p>
+        <p style={textStyle}>{tempRating || rating || ''  } </p>
     </div>
 }
 
-function Star({onClick,full}) {
-    return <span role="button" style={star} onClick={onClick}>
+function Star({onClick,full,onMouseEnter,onMouseLeave}) {
+    return <span role="button" style={star} onClick={onClick} onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}>
      {full ?   <svg
   xmlns="http://www.w3.org/2000/svg"
   fill="none"
