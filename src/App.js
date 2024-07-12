@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 
 const tempMovieData = [
@@ -47,10 +47,17 @@ const tempWatchedData = [
     userRating: 9,
   },
 ];
-
+const key='8c7bd93c'
 export default function App() {
   const [movies, setMovies] = useState(tempMovieData)
-  const [watched,setWached]=useState(tempWatchedData)
+  const [watched, setWached] = useState(tempWatchedData)
+  useEffect(function () {
+    fetch(`http://www.omdbapi.com/?apikey=${key}&s=Titanic`)
+      .then(res => res.json())
+    .then(data=>console.log(data.Search))
+  })
+
+
   return <div>
     <Nav> 
       <Logo />
