@@ -49,13 +49,36 @@ const tempWatchedData = [
 ];
 const key='8c7bd93c'
 export default function App() {
-  const [movies, setMovies] = useState(tempMovieData)
+  const [movies, setMovies] = useState([])
   const [watched, setWached] = useState(tempWatchedData)
-  useEffect(function () {
-    fetch(`http://www.omdbapi.com/?apikey=${key}&s=Titanic`)
-      .then(res => res.json())
-    .then(data=>console.log(data.Search))
-  })
+  const [isLoading, setIsLoading] = useState(false)
+  const [errorMessage,setErrorMessage]=useState('')
+  useEffect( function () {
+    async function fetchMovies() {
+      try {
+        setIsLoading(true)
+        setErrorMessage('')
+         const res = await fetch(
+           `http://www.omdbapi.com/?apikey=${key}&s=Titanic`)
+     if(!res.ok) throw new Error('there is a problem in connection')
+
+        const data = await res.json()
+        
+        setMovies(data.Search)
+       
+      }
+      catch(err) {
+       
+        setErrorMessage(err.message)
+      }
+      finally {
+              setIsLoading(false)
+
+      }
+      
+    }
+    fetchMovies()
+  },[])
 
 
   return <div>
@@ -65,12 +88,22 @@ export default function App() {
       <Result data={movies } />  
     </Nav>
     <Main >
-      <Box data={movies}><MovieList data={movies } /></Box>
+      <Box data={movies}>
+        {isLoading && <Loading />}
+        {errorMessage && <Message message={errorMessage } />}
+        {!isLoading && !errorMessage && <MovieList data={movies} />}</Box>
       <Box data={watched}> <Summery data={watched}/> <Watched data={watched} /></Box>
     </Main>
   </div>
 }
-
+function Message({message}) {
+  return <div>
+    <span>⛔️</span>{message}
+  </div>
+}
+function Loading() {
+  return <div className="loader">Loading...</div>
+}
 function Nav({children}) {
   return <div className="nav-bar">{ children}</div>
 }
