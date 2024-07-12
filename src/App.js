@@ -53,20 +53,26 @@ export default function App() {
   const [watched, setWached] = useState(tempWatchedData)
   const [isLoading, setIsLoading] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
-  const tempQuery='TTTT'
+  const [query,setQuery]=useState('')
+
   useEffect( function () {
     async function fetchMovies() {
       try {
         setIsLoading(true)
         setErrorMessage('')
          const res = await fetch(
-           `http://www.omdbapi.com/?apikey=${key}&s=${tempQuery}`)
-     if(!res.ok) throw new Error('there is a problem in connection')
+            `http://www.omdbapi.com/?apikey=${key}&s=${query}`)
+        if (!res.ok)
+          throw new Error('there is a problem in connection')
 
         const data = await res.json()
-        if(!data.response) throw new Error('Movie is not Found')
+        if (!data.response) {
+          console.log(data.Search);
+        }
+          // throw new Error('Movie is not Found')
+          
         setMovies(data.Search)
-       
+        console.log(data.Search);
       }
       catch(err) {
        
@@ -78,24 +84,31 @@ export default function App() {
       }
       
     }
+    if (query.length < 3) {
+      setErrorMessage('')
+      setMovies([])
+      return;
+    }
+
     fetchMovies()
-  },[])
+  },[query])
 
 
-  return <div>
+  return <>
     <Nav> 
       <Logo />
-      <Search data={movies } />
+      <Search  query={query} setQuery={setQuery} />
       <Result data={movies } />  
     </Nav>
     <Main >
       <Box data={movies}>
         {isLoading && <Loading />}
-        {errorMessage && <Message message={errorMessage } />}
-        {!isLoading && !errorMessage && <MovieList data={movies} />}</Box>
-      <Box data={watched}> <Summery data={watched}/> <Watched data={watched} /></Box>
+       {!isLoading && !errorMessage &&(<MovieList data={movies}/> ) }
+        {errorMessage && <Message message={errorMessage} />}
+      </Box>
+      <Box data={watched}> <Summery data={watched} /> <Watched data={watched} /></Box>
     </Main>
-  </div>
+  </>
 }
 function Message({message}) {
   return <div className="error">
@@ -114,16 +127,19 @@ function Logo() {
    <span>UsePopcorn</span> 
   </div>
 }
-function Search({ data }) {
-  const [query,setQuery]=useState('')
+function Search({query,setQuery}) {
 
-  return <div>
-    <input type="text" placeholder="search a movie" className="search" value={query} onChange={e=>setQuery(e.target.value)} />
-  </div>
+
+  return  <input type="text"
+      placeholder="search a movie"
+      className="search"
+      value={query}
+      onChange={e => setQuery(e.target.value)} />
+  
 }
 
 function Result({data}) {
-  return <p className="num-results">Found {data.length} results</p>
+  return <p className="num-results">Found {data? data.length:0} results</p>
 }
 
 function Main({children}) {
@@ -143,7 +159,7 @@ function Box({data,children}) {
 }
 function MovieList({data}) {
   return <ul className="list">
-    {data.map(movie =>(
+    {data && data.map(movie =>(
       <li>
         <img src={movie.Poster} alt={movie.Poster}></img>
         <h3>{movie.Title}</h3>
@@ -162,9 +178,9 @@ const average=(arr)=>
   
 
 function Summery({ data }) {
-    const avgImdbRating = average(data.map(movie => movie.imdbRating))
-  const avgUserRating = average(data.map(movie => movie.userRating))
-  const avgRuntime = average(data.map((movie) => movie.runtime));
+    const avgImdbRating = average(data&&data.map(movie => movie.imdbRating))
+  const avgUserRating = average(data&&data.map(movie => movie.userRating))
+  const avgRuntime = average(data&&data.map((movie) => movie.runtime));
   return <div className="summary">
       <h2>Movies you watched</h2>
       <div>
