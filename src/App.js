@@ -188,6 +188,7 @@ function MovieList({data,id,onHandleId}) {
 function MovieDetails({ id, handleNullId }) {
   const [movie, setMovie] = useState({})
   const [isLoading, setIsloading] = useState(false)
+  const[isError,setError]=useState('')
   const {
     Title: title,
     Year: year,
@@ -204,20 +205,27 @@ function MovieDetails({ id, handleNullId }) {
   useEffect(function () {
     async function getMoviesDetails() {
       setIsloading(true)
-      const res = await fetch(
+      setError('')
+      try {
+        const res = await fetch(
         `http://www.omdbapi.com/?apikey=${key}&i=${id}`)
-
+if(!res.ok) throw new Error('there is an error')
       const data = await res.json()
       setMovie(data)
       setIsloading(false)
+      }
+      catch (err) {
+        setError(err.message);
+      }
+      
       
     }
     getMoviesDetails()
   }, [id])
   return  <div className="details"  >
    { isLoading && <Loading />}
-  
-    {!isLoading &&
+  {isError && <Message/>}
+    {!isLoading && !isError &&
    <> <header>
       <button className="btn-back" onClick={handleNullId}>&larr;</button>
       <img src={poster} alt={movie.poster}></img>
@@ -235,7 +243,7 @@ function MovieDetails({ id, handleNullId }) {
     <section>
       <p><em>{plot}</em></p>
       <p>Starring {actors}</p>
-      <p>Directed by<b> {director}</b></p>
+      <p>Directed by<b>{director}</b></p>
       
       </section>
       </>
