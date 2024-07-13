@@ -322,6 +322,7 @@ img{
 }
 
 .btn-back {
+  
   position: absolute;
   top: 0.6rem;
   left: 0.6rem;
@@ -330,7 +331,7 @@ img{
   border-radius: 50%;
   border: none;
   /* background-color: var(--color-text); */
-  background-color: #fff;
+  background-color: #fbf204;
   color: var(--color-background-500);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.8);
   font-family: sans-serif;
@@ -341,6 +342,17 @@ img{
   display: flex;
   align-items: center;
   justify-content: center;
+}
+.star {
+  width: '12px';
+    height: '12px';
+    display: 'flex';
+    cursor:'pointer'
+}
+.starContainerStyle {
+  display: 'flex'!important;
+    gap:'4px'
+
 }
 
 /*
