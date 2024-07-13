@@ -56,13 +56,12 @@ export default function App() {
   const [query, setQuery] = useState('')
   const[selectedId,setSelectedId]=useState(null)
   function handleId(id) {
-  setSelectedId(id)
+  setSelectedId(selectedId=>selectedId===id?null:id)
   }
-  function findMovieById(id) {
-    setMovies(movies.map(movie =>
-      movie.id===id
-    ))
+  function handleNullId() {
+    setSelectedId(null)
   }
+
   useEffect( function () {
     async function fetchMovies() {
       try {
@@ -114,7 +113,7 @@ export default function App() {
         {errorMessage && <Message message={errorMessage} />}
       </Box>
       <Box data={watched}>
-        {selectedId ? <MovieDetails id={selectedId} onHanldeId={handleId} /> :
+        {selectedId ? <MovieDetails id={selectedId} onHanldeId={handleId} handleNullId={handleNullId} /> :
 
           <>
         <Summery data={watched} />
@@ -186,8 +185,9 @@ function MovieList({data,id,onHandleId}) {
    ))}
     </ul>
 }
-function MovieDetails({id}) {
+function MovieDetails({id,handleNullId}) {
   return <div className="details"  >
+    <button className="btn-back" onClick={handleNullId}>&larr;</button>
      <section>
       <img></img>
       <div className="details-overview">
