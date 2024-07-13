@@ -53,8 +53,16 @@ export default function App() {
   const [watched, setWached] = useState(tempWatchedData)
   const [isLoading, setIsLoading] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
-  const [query,setQuery]=useState('')
-
+  const [query, setQuery] = useState('')
+  const[selectedId,setSelectedId]=useState(null)
+  function handleId(id) {
+  setSelectedId(id)
+  }
+  function findMovieById(id) {
+    setMovies(movies.map(movie =>
+      movie.id===id
+    ))
+  }
   useEffect( function () {
     async function fetchMovies() {
       try {
@@ -101,10 +109,19 @@ export default function App() {
     <Main >
       <Box data={movies}>
         {isLoading && <Loading />}
-       {!isLoading && !errorMessage &&(<MovieList data={movies}/> ) }
+        {!isLoading && !errorMessage && (<MovieList data={movies} id={selectedId } onHandleId={handleId } /> ) }
+
         {errorMessage && <Message message={errorMessage} />}
       </Box>
-      <Box data={watched}> <Summery data={watched} /> <Watched data={watched} /></Box>
+      <Box data={watched}>
+        {selectedId ? <MovieDetails id={selectedId} onHanldeId={handleId} /> :
+
+          <>
+        <Summery data={watched} />
+            <Watched data={watched} />
+          </>
+        }
+      </Box>
     </Main>
   </>
 }
@@ -155,10 +172,10 @@ function Box({data,children}) {
   {isOpen && children}
     </div>
 }
-function MovieList({data}) {
-  return <ul className="list">
+function MovieList({data,id,onHandleId}) {
+  return <ul className="list list-movies ">
     {data && data.map(movie =>(
-      <li>
+      <li onClick={()=>onHandleId(movie.imdbID)}>
         <img src={movie.Poster} alt={movie.Poster}></img>
         <h3>{movie.Title}</h3>
         <div>
@@ -169,6 +186,27 @@ function MovieList({data}) {
    ))}
     </ul>
 }
+function MovieDetails({id}) {
+  return <div className="details"  >
+     <section>
+      <img></img>
+      <div className="details-overview">
+        <h2></h2>
+        <p>
+         <span></span> 
+         <span></span> 
+         <span></span> 
+        </p>
+      </div>
+    </section>
+   
+
+   
+  </div>
+}
+
+
+
 const average=(arr)=> 
  arr.reduce((acc,cur,i,arr)=>acc+cur/arr.length,0)
 
