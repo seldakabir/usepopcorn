@@ -185,24 +185,63 @@ function MovieList({data,id,onHandleId}) {
    ))}
     </ul>
 }
-function MovieDetails({id,handleNullId}) {
-  return <div className="details"  >
-    <button className="btn-back" onClick={handleNullId}>&larr;</button>
-     <section>
-      <img></img>
+function MovieDetails({ id, handleNullId }) {
+  const [movie, setMovie] = useState({})
+  const [isLoading, setIsloading] = useState(false)
+  const {
+    Title: title,
+    Year: year,
+    Poster: poster,
+    Runtime: runtime,
+    imdbRating,
+    Plot: plot,
+    Released: released,
+    Actores: actors,
+    Director: director,
+    Genr: genre
+  } = movie
+  
+  useEffect(function () {
+    async function getMoviesDetails() {
+      setIsloading(true)
+      const res = await fetch(
+        `http://www.omdbapi.com/?apikey=${key}&i=${id}`)
+
+      const data = await res.json()
+      setMovie(data)
+      setIsloading(false)
+      
+    }
+    getMoviesDetails()
+  }, [id])
+  return  <div className="details"  >
+   { isLoading && <Loading />}
+  
+    {!isLoading &&
+   <> <header>
+      <button className="btn-back" onClick={handleNullId}>&larr;</button>
+      <img src={poster} alt={movie.poster}></img>
       <div className="details-overview">
-        <h2></h2>
+        <h2>{title}</h2>
         <p>
-         <span></span> 
-         <span></span> 
-         <span></span> 
+          {released} &bull; {runtime}
+        </p>
+        <p>{genre}</p>
+        <p><span>⭐️</span>
+          {imdbRating} IMDb rating
         </p>
       </div>
-    </section>
-   
-
-   
+    </header>
+    <section>
+      <p><em>{plot}</em></p>
+      <p>Starring {actors}</p>
+      <p>Directed by<b> {director}</b></p>
+      
+      </section>
+      </>
+   }
   </div>
+
 }
 
 
