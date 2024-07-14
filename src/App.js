@@ -54,7 +54,8 @@ export default function App() {
   const [isLoading, setIsLoading] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
   const [query, setQuery] = useState('')
-  const[selectedId,setSelectedId]=useState(null)
+  const [selectedId, setSelectedId] = useState(null)
+ 
   function handleId(id) {
   setSelectedId(selectedId=>selectedId===id?null:id)
   }
@@ -64,7 +65,9 @@ export default function App() {
   function handleAddWatchedMovies(movie) {
     setWached(watched=>[...watched,movie])
   }
-
+  function handleDeleteWatched(imdbID) {
+  setWached(watched=>watched.filter(watch=>watch.imdbID!==imdbID))
+}
   useEffect( function () {
     async function fetchMovies() {
       try {
@@ -80,7 +83,7 @@ export default function App() {
            throw new Error('Movie is not Found')
           
         setMovies(data.Search)
-        console.log(data.Search);
+      
       }
       catch(err) {
        
@@ -90,7 +93,7 @@ export default function App() {
               setIsLoading(false)
 
       }
-      
+      console.log(watched);
     }
     if (query.length < 3) {
       setErrorMessage('')
@@ -117,13 +120,18 @@ export default function App() {
       </Box>
       <Box data={watched}>
         {selectedId ? <MovieDetails id={selectedId}
+          watched={watched}
           onHanldeId={handleId}
           handleNullId={handleNullId}
-          onAddWatchedMovie={handleAddWatchedMovies} /> :
+          onAddWatchedMovie={handleAddWatchedMovies} 
+          
+          /> :
 
           <>
         <Summery data={watched} />
-            <Watched data={watched} />
+            <Watched
+              data={watched}
+              onDeleteWatched={handleDeleteWatched} />
           </>
         }
       </Box>
@@ -159,7 +167,8 @@ function Search({query,setQuery}) {
 }
 
 function Result({data}) {
-  return <p className="num-results">Found {data? data.length:0} results</p>
+  return <p className="num-results">
+    Found {data ? data.length : 0} results</p>
 }
 
 function Main({children}) {
@@ -191,11 +200,17 @@ function MovieList({data,id,onHandleId}) {
    ))}
     </ul>
 }
-function MovieDetails({ id, handleNullId,onAddWatchedMovie }) {
+function MovieDetails({ id, handleNullId,onAddWatchedMovie,watched }) {
   const [movie, setMovie] = useState({})
   const [isLoading, setIsloading] = useState(false)
   const [isError, setError] = useState('')
-  const[userRating,setUserRating]=useState('')
+  const [userRating, setUserRating] = useState('')
+
+  const isWatched = watched.map(watch => watch.imdbID).includes(id)
+  console.log(isWatched);
+  const watchedUserRating = watched.find(
+    watch => watch.imdbID === id
+  )?.userRating
   const {
     Title: title,
     Year: year,
@@ -250,7 +265,8 @@ if(!res.ok) throw new Error('there is an error')
   {isError && <Message/>}
     {!isLoading && !isError &&
    <> <header>
-      <button className="btn-back" onClick={handleNullId}>&larr;</button>
+      <button className="btn-back"
+        onClick={handleNullId}>&larr;</button>
       <img src={poster} alt={movie.poster}></img>
       <div className="details-overview">
         <h2>{title}</h2>
@@ -265,9 +281,22 @@ if(!res.ok) throw new Error('there is an error')
     </header>
       <section>
         <div className="rating">
-          <StarRating onUserRating={ setUserRating} />
-{ userRating &&         <button className="btn-add " onClick={handleAdd} >+ Add to list</button>
-}          </div>
+          {!isWatched ?(
+            <>
+              <StarRating
+                onUserRating={setUserRating} 
+                />
+              {userRating > 0 && (
+                <button className="btn-add " onClick=
+                  {handleAdd} >+ Add to list
+                  
+                </button>
+              )}
+            </>
+          ):
+            <p>You rated this movie before {watchedUserRating }<span> ⭐️</span></p>
+          }
+           </div>
       <p><em>{plot}</em></p>
       <p>Starring {actors}</p>
       <p>Directed by<b> {director}</b></p>
@@ -314,7 +343,7 @@ function Summery({ data }) {
       
       </div>
 }
-function Watched({ data }) {
+function Watched({ data,onDeleteWatched }) {
   
   return <ul className="list">
        {data.map(movie =>(
@@ -324,16 +353,17 @@ function Watched({ data }) {
         <div>
           <p>
                         <span>⭐️</span>
-                        <span>{movie.imdbRating}</span>
+                        <span>{movie.imdbRating.toFixed(2)}</span>
                       </p>
                       <p>
                         <span>🌟</span>
-                        <span>{movie.userRating}</span>
+                        <span>{movie.userRating.toFixed(2)}</span>
                       </p>
                       <p>
                         <span>⏳</span>
                         <span>{movie.runtime} min</span>
-                      </p>
+             </p>
+             <button className="btn-delete" onClick={()=>onDeleteWatched(movie.imdbID)}></button>
         </div>
       </li>
    ))} 
