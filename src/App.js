@@ -217,7 +217,8 @@ function MovieDetails({ id, handleNullId,onAddWatchedMovie }) {
       poster,
       imdbRating: Number(imdbRating),
       runtime: Number(runtime.split(' ').at(0)),
-      userRating
+      userRating,
+      genre
 }
 
 
