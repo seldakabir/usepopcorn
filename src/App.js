@@ -50,7 +50,7 @@ const tempWatchedData = [
 const key='8c7bd93c'
 export default function App() {
   const [movies, setMovies] = useState([])
-  const [watched, setWached] = useState(tempWatchedData)
+  const [watched, setWached] = useState([])
   const [isLoading, setIsLoading] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
   const [query, setQuery] = useState('')
@@ -116,7 +116,10 @@ export default function App() {
         {errorMessage && <Message message={errorMessage} />}
       </Box>
       <Box data={watched}>
-        {selectedId ? <MovieDetails id={selectedId} onHanldeId={handleId} handleNullId={handleNullId} onAddWatchedMovie={handleAddWatchedMovies } /> :
+        {selectedId ? <MovieDetails id={selectedId}
+          onHanldeId={handleId}
+          handleNullId={handleNullId}
+          onAddWatchedMovie={handleAddWatchedMovies} /> :
 
           <>
         <Summery data={watched} />
@@ -207,11 +210,17 @@ function MovieDetails({ id, handleNullId,onAddWatchedMovie }) {
   function handleAdd() {
 
     const newMovie = {
-  
+      imdbID: id,
+      title,
+      year,
+      poster,
+      imdbRating: Number(imdbRating),
+      runtime:Number(runtime.split(' ').at(0))
 }
 
 
     onAddWatchedMovie(newMovie)
+    handleNullId()
   }
   useEffect(function () {
     async function getMoviesDetails() {
@@ -254,7 +263,7 @@ if(!res.ok) throw new Error('there is an error')
       <section>
         <div className="rating">
           <StarRating />
-          <button className="btn-add " >+ Add to list</button>
+          <button className="btn-add " onClick={handleAdd} >+ Add to list</button>
           </div>
       <p><em>{plot}</em></p>
       <p>Starring {actors}</p>
@@ -307,7 +316,7 @@ function Watched({ data }) {
   return <ul className="list">
        {data.map(movie =>(
       <li>
-        <img src={movie.Poster} alt={movie.Poster}></img>
+        <img src={movie.poster} alt={movie.poster}></img>
         <h3>{movie.Title}</h3>
         <div>
           <p>
