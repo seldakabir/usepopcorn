@@ -194,7 +194,8 @@ function MovieList({data,id,onHandleId}) {
 function MovieDetails({ id, handleNullId,onAddWatchedMovie }) {
   const [movie, setMovie] = useState({})
   const [isLoading, setIsloading] = useState(false)
-  const[isError,setError]=useState('')
+  const [isError, setError] = useState('')
+  const[userRating,setUserRating]=useState('')
   const {
     Title: title,
     Year: year,
@@ -215,7 +216,8 @@ function MovieDetails({ id, handleNullId,onAddWatchedMovie }) {
       year,
       poster,
       imdbRating: Number(imdbRating),
-      runtime:Number(runtime.split(' ').at(0))
+      runtime: Number(runtime.split(' ').at(0)),
+      userRating
 }
 
 
@@ -262,9 +264,9 @@ if(!res.ok) throw new Error('there is an error')
     </header>
       <section>
         <div className="rating">
-          <StarRating />
-          <button className="btn-add " onClick={handleAdd} >+ Add to list</button>
-          </div>
+          <StarRating onUserRating={ setUserRating} />
+{ userRating &&         <button className="btn-add " onClick={handleAdd} >+ Add to list</button>
+}          </div>
       <p><em>{plot}</em></p>
       <p>Starring {actors}</p>
       <p>Directed by<b> {director}</b></p>
@@ -337,16 +339,23 @@ function Watched({ data }) {
       </ul>
 }
 
-function StarRating() {
+function StarRating({onUserRating}) {
   const [rating, setRating] = useState(0)
-  const[tempRating,setTempRating]=useState(0)
+  const [tempRating, setTempRating] = useState(0)
+  function handleSetRating(rating) {
+setRating(rating)
+    onUserRating(rating)
+  }
  
   return<div style={container}>
   <div style={starContainer}>
     {
-        Array.from({ length: 10 }, (_, i) => <Star key={i + 1} onClick={() => setRating(i + 1)} onHover={() => setTempRating(i + 1)}
+        Array.from({ length: 10 }, (_, i) => <Star key={i + 1}
+          onClick={()=>handleSetRating(i+1)}
+          onHover={() => setTempRating(i + 1)}
            onLeave={()=>setTempRating(0)}
-          full={tempRating?tempRating>=i+1:rating>=i+1}
+          full={tempRating ? tempRating >= i + 1 : rating >= i + 1}
+          onHandleSetRating={handleSetRating}
         />)
     }
     </div>
@@ -374,7 +383,7 @@ const container = {
 
 
 function Star({onClick,full,onHover}) {
-  return <span style={starStyle} onClick={onClick} onMouseEnter={onHover}>
+  return <span style={starStyle} onClick={onClick} onMouseEnter={onHover} >
     {full?<svg
   xmlns="http://www.w3.org/2000/svg"
   viewBox="0 0 20 20"
