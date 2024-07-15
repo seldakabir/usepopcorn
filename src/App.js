@@ -49,7 +49,7 @@ const tempWatchedData = [
 ];
 const key='8c7bd93c'
 export default function App() {
-  const [movies, setMovies] = useState([])
+  const [movies, setMovies] = useState('')
   const [watched, setWached] = useState([])
   const [isLoading, setIsLoading] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
@@ -69,7 +69,7 @@ export default function App() {
   setWached(watched=>watched.filter(watch=>watch.imdbID!==imdbID))
 }
   useEffect(function () {
-    const controller=AbortController()
+    const controller=new AbortController()
     async function fetchMovies() {
       try {
         setIsLoading(true)
@@ -91,21 +91,23 @@ export default function App() {
       
       }
       catch(err) {
-       
-        setErrorMessage(err.message)
+        if (err.name !== 'AbortError') {
+                 setErrorMessage(err.message)
+
+       }
       }
       finally {
               setIsLoading(false)
 
       }
-      console.log(watched);
+
     }
     if (query.length < 3) {
       setErrorMessage('')
       setMovies([])
       return;
     }
-
+handleNullId()
     fetchMovies()
   },[query])
 
@@ -246,13 +248,26 @@ function MovieDetails({ id, handleNullId,onAddWatchedMovie,watched }) {
     handleNullId()
   }
   useEffect(function () {
-    const controller=AbortController()
+    function callback(e) {
+      if (e.code=== 'Escape') {
+       handleNullId()
+     }
+    }
+    document.addEventListener('keydown',callback ) 
+    return function () {
+          document.removeEventListener('keydown', callback)
+
+    }
+  },[handleNullId])
+  useEffect(function () {
+    const controller= new AbortController()
     async function getMoviesDetails() {
       setIsloading(true)
       setError('')
       try {
         const res = await fetch(
-          `http://www.omdbapi.com/?apikey=${key}&i=${id}`
+          `http://www.omdbapi.com/?apikey=${key}&i=${id}`,
+          {signal:controller.signal}
           )
 if(!res.ok) throw new Error('there is an error')
       const data = await res.json()
@@ -260,11 +275,15 @@ if(!res.ok) throw new Error('there is an error')
       setIsloading(false)
       }
       catch (err) {
-        setError(err.message);
+         if (err.name !== 'AbortError') {
+                 setError(err.message)
+
+       }
       }
       
       
     }
+    
     getMoviesDetails()
   }, [id])
   useEffect(function () {
