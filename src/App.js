@@ -68,13 +68,15 @@ export default function App() {
   function handleDeleteWatched(imdbID) {
   setWached(watched=>watched.filter(watch=>watch.imdbID!==imdbID))
 }
-  useEffect( function () {
+  useEffect(function () {
+    const controller=AbortController()
     async function fetchMovies() {
       try {
         setIsLoading(true)
         setErrorMessage('')
          const res = await fetch(
-            `http://www.omdbapi.com/?apikey=${key}&s=${query}`)
+           `http://www.omdbapi.com/?apikey=${key}&s=${query}`
+         , { signal: controller.signal })
         if (!res.ok)
           throw new Error('there is a problem in connection')
 
@@ -83,6 +85,9 @@ export default function App() {
            throw new Error('Movie is not Found')
           
         setMovies(data.Search)
+        return function () {
+          controller.abort()
+        }
       
       }
       catch(err) {
@@ -241,12 +246,14 @@ function MovieDetails({ id, handleNullId,onAddWatchedMovie,watched }) {
     handleNullId()
   }
   useEffect(function () {
+    const controller=AbortController()
     async function getMoviesDetails() {
       setIsloading(true)
       setError('')
       try {
         const res = await fetch(
-        `http://www.omdbapi.com/?apikey=${key}&i=${id}`)
+          `http://www.omdbapi.com/?apikey=${key}&i=${id}`
+          )
 if(!res.ok) throw new Error('there is an error')
       const data = await res.json()
       setMovie(data)
@@ -262,7 +269,10 @@ if(!res.ok) throw new Error('there is an error')
   }, [id])
   useEffect(function () {
     if (!title) return;
-    document.title=`Movie |${title}`
+    document.title = `Movie |${title}`
+    return function () {
+      document.title='Popcorn'
+    }
   },[title])
   return  <div className="details"  >
    { isLoading && <Loading />}
