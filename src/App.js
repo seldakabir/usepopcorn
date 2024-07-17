@@ -1,30 +1,28 @@
 import { useEffect, useRef, useState } from "react";
 import { useMovies } from "./useMovies";
+import { useLocalStorage } from "./useLocallStorage";
  const key='8c7bd93c'
 
 export default function App() {
   
   const [query, setQuery] = useState('')
   const [selectedId, setSelectedId] = useState(null)
-  const [watched, setWached] = useState(function () {
-  return JSON.parse(localStorage.getItem('watched'))
-
-  })
+  
   function handleId(id) {
-  setSelectedId(selectedId=>selectedId===id?null:id)
+    setSelectedId(selectedId => selectedId === id ? null : id)
   }
   function handleNullId() {
     setSelectedId(null)
   }
   function handleAddWatchedMovies(movie) {
-    setWached(watched=>[...watched,movie])
+    setWached(watched => [...watched, movie])
   }
   function handleDeleteWatched(imdbID) {
-  setWached(watched=>watched.filter(watch=>watch.imdbID!==imdbID))
-}
-  const {movies,isLoading,errorMessage }=useMovies(query,handleNullId)
-  localStorage.setItem('watched', JSON.stringify(watched))
+    setWached(watched => watched.filter(watch => watch.imdbID !== imdbID))
+  }
+  const { movies, isLoading, errorMessage } = useMovies(query, handleNullId)
 
+  const  [watched,setWached]=useLocalStorage([],'watched')
 
 
 
