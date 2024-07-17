@@ -1,6 +1,6 @@
 import { useEffect,useState } from "react"
  const key='8c7bd93c'
-export function useMovies(query,callback) {
+export function useMovies(query) {
    
 const [movies, setMovies] = useState('')
   const [isLoading, setIsLoading] = useState(false)
@@ -44,8 +44,8 @@ const [movies, setMovies] = useState('')
             setMovies([])
             return;
         }
-        callback?.()
+     
         fetchMovies()
-    }, [query,callback]);
+    }, [query]);
 return {movies,errorMessage,isLoading}
 }

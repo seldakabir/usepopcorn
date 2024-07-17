@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useMovies } from "./useMovies";
 import { useLocalStorage } from "./useLocallStorage";
+import { useKey } from "./useKey";
  const key='8c7bd93c'
 
 export default function App() {
@@ -20,7 +21,7 @@ export default function App() {
   function handleDeleteWatched(imdbID) {
     setWached(watched => watched.filter(watch => watch.imdbID !== imdbID))
   }
-  const { movies, isLoading, errorMessage } = useMovies(query, handleNullId)
+  const { movies, isLoading, errorMessage } = useMovies(query)
 
   const  [watched,setWached]=useLocalStorage([],'watched')
 
@@ -78,11 +79,11 @@ function Logo() {
 }
 function Search({query,setQuery}) {
 
-  const elInput = useRef(null)
+  const elInput = useRef('')
   useEffect(function () {
     function callback(e) {
       if (document.activeElement === elInput.current) return;
-      if (e.code.toLowerCase() === 'enter'.toLocaleLowerCase()) {
+      if (e.code === 'Enter') {
         elInput.current.focus();
         setQuery('')
     
@@ -175,18 +176,7 @@ function MovieDetails({ id, handleNullId,onAddWatchedMovie,watched }) {
     onAddWatchedMovie(newMovie)
     handleNullId()
   }
-  useEffect(function () {
-    function callback(e) {
-      if (e.code=== 'Escape') {
-       handleNullId()
-     }
-    }
-    document.addEventListener('keydown',callback ) 
-    return function () {
-          document.removeEventListener('keydown', callback)
-
-    }
-  },[handleNullId])
+ useKey('Escape',handleNullId)
   useEffect(function () {
     const controller= new AbortController()
     async function getMoviesDetails() {
